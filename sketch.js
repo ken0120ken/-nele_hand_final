@@ -3,7 +3,6 @@ let handpose;
 let predictions = [];
 let osc;
 let reverb;
-let audioStarted = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -24,7 +23,7 @@ function setup() {
 
   osc = new p5.Oscillator('sawtooth');
   osc.start();
-  osc.amp(0.0); // 初期は無音
+  osc.amp(0.5);
 
   reverb = new p5.Reverb();
   reverb.process(osc, 3, 2);
@@ -32,18 +31,15 @@ function setup() {
 
 function draw() {
   background(0);
+  push();
+  translate(width, 0);
+  scale(-1, 1);
   image(video, 0, 0, width, height);
-
-  if (!audioStarted) {
-    fill(255);
-    textSize(32);
-    textAlign(CENTER, CENTER);
-    text("Click to start audio", width / 2, height / 2);
-    return;
-  }
+  pop();
 
   noFill();
   strokeWeight(4);
+  colorMode(HSB);
 
   for (let i = 0; i < predictions.length; i++) {
     let hand = predictions[i];
@@ -53,10 +49,15 @@ function draw() {
     const indexTip = keypoints.find(k => k.name === "index_finger_tip");
 
     if (thumbTip && indexTip) {
-      let d = dist(thumbTip.x, thumbTip.y, indexTip.x, indexTip.y);
-      let hue = map(d, 0, width, 0, 255);
+      let x1 = width - thumbTip.x;
+      let x2 = width - indexTip.x;
+      let y1 = thumbTip.y;
+      let y2 = indexTip.y;
+
+      let d = dist(x1, y1, x2, y2);
+      let hue = map(d, 0, width / 2, 0, 255);
       stroke(hue, 255, 255);
-      line(thumbTip.x, thumbTip.y, indexTip.x, indexTip.y);
+      line(x1, y1, x2, y2);
 
       if (i === 0) {
         let vol = map(d, 0, width / 2, 0, 1, true);
@@ -77,8 +78,7 @@ function detectHands(detector) {
 }
 
 function mousePressed() {
-  if (!audioStarted) {
-    getAudioContext().resume();
-    audioStarted = true;
-  }
+  getAudioContext().resume();
 }
+
+
