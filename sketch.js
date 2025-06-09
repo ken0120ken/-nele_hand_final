@@ -1,3 +1,4 @@
+
 let video;
 let handpose;
 let predictions = [];
@@ -80,5 +81,3 @@ function detectHands(detector) {
 function mousePressed() {
   getAudioContext().resume();
 }
-
-
