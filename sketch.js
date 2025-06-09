@@ -24,7 +24,7 @@ function setup() {
 
   osc = new p5.Oscillator('sawtooth');
   osc.start();
-  osc.amp(0.5);
+  osc.amp(0);
 
   reverb = new p5.Reverb();
   reverb.process(osc, 3, 2);
@@ -32,14 +32,9 @@ function setup() {
 
 function draw() {
   background(0);
-  push();
-  translate(width, 0);
-  scale(-1, 1);
   image(video, 0, 0, width, height);
-  pop();
 
-  noFill();
-  strokeWeight(4);
+  strokeWeight(6);
   colorMode(HSB);
 
   for (let i = 0; i < predictions.length; i++) {
@@ -50,9 +45,10 @@ function draw() {
     const indexTip = keypoints.find(k => k.name === "index_finger_tip");
 
     if (thumbTip && indexTip) {
+      // x座標を鏡像反転（MediaPipeはflipHorizontal=true時に反転される）
       let x1 = width - thumbTip.x;
-      let x2 = width - indexTip.x;
       let y1 = thumbTip.y;
+      let x2 = width - indexTip.x;
       let y2 = indexTip.y;
 
       let d = dist(x1, y1, x2, y2);
@@ -79,5 +75,6 @@ function detectHands(detector) {
 }
 
 function mousePressed() {
+  userStartAudio();
   getAudioContext().resume();
 }
