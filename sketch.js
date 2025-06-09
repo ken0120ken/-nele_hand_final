@@ -3,6 +3,7 @@ let handpose;
 let predictions = [];
 let osc;
 let reverb;
+let audioStarted = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -23,7 +24,7 @@ function setup() {
 
   osc = new p5.Oscillator('sawtooth');
   osc.start();
-  osc.amp(0.5);
+  osc.amp(0.0); // 初期は無音
 
   reverb = new p5.Reverb();
   reverb.process(osc, 3, 2);
@@ -31,8 +32,15 @@ function setup() {
 
 function draw() {
   background(0);
-  tint(255);
   image(video, 0, 0, width, height);
+
+  if (!audioStarted) {
+    fill(255);
+    textSize(32);
+    textAlign(CENTER, CENTER);
+    text("Click to start audio", width / 2, height / 2);
+    return;
+  }
 
   noFill();
   strokeWeight(4);
@@ -69,5 +77,8 @@ function detectHands(detector) {
 }
 
 function mousePressed() {
-  getAudioContext().resume();
+  if (!audioStarted) {
+    getAudioContext().resume();
+    audioStarted = true;
+  }
 }
