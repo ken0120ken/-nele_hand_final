@@ -1,4 +1,3 @@
-
 let video;
 let handpose;
 let predictions = [];
@@ -24,7 +23,7 @@ function setup() {
 
   osc = new p5.Oscillator('sawtooth');
   osc.start();
-  osc.amp(0);
+  osc.amp(0.5);
 
   reverb = new p5.Reverb();
   reverb.process(osc, 3, 2);
@@ -32,10 +31,11 @@ function setup() {
 
 function draw() {
   background(0);
+  tint(255);
   image(video, 0, 0, width, height);
 
-  strokeWeight(6);
-  colorMode(HSB);
+  noFill();
+  strokeWeight(4);
 
   for (let i = 0; i < predictions.length; i++) {
     let hand = predictions[i];
@@ -45,16 +45,10 @@ function draw() {
     const indexTip = keypoints.find(k => k.name === "index_finger_tip");
 
     if (thumbTip && indexTip) {
-      // x座標を鏡像反転（MediaPipeはflipHorizontal=true時に反転される）
-      let x1 = width - thumbTip.x;
-      let y1 = thumbTip.y;
-      let x2 = width - indexTip.x;
-      let y2 = indexTip.y;
-
-      let d = dist(x1, y1, x2, y2);
-      let hue = map(d, 0, width / 2, 0, 255);
+      let d = dist(thumbTip.x, thumbTip.y, indexTip.x, indexTip.y);
+      let hue = map(d, 0, width, 0, 255);
       stroke(hue, 255, 255);
-      line(x1, y1, x2, y2);
+      line(thumbTip.x, thumbTip.y, indexTip.x, indexTip.y);
 
       if (i === 0) {
         let vol = map(d, 0, width / 2, 0, 1, true);
@@ -75,6 +69,5 @@ function detectHands(detector) {
 }
 
 function mousePressed() {
-  userStartAudio();
   getAudioContext().resume();
 }
